@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GradeVision AI - Automated Answer Script Evaluation</title>
+  <meta name="description" content="Next-Generation AI Automated Answer Script Evaluation platform with MongoDB support and Custom Faculty Wireframe Dashboard.">
+  
+  <!-- Google Fonts & Lucide Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="dark-theme">
+
+  <!-- TOP HEADER BAR (EXACT SKETCH: NAME | SUBJECT | DEPT) -->
+  <header class="app-header">
+    <div class="header-container">
+      
+      <!-- LEFT BRAND & BADGES FROM WIREFRAME -->
+      <div class="wireframe-header-left">
+        <div class="logo-brand" style="margin-right: 20px;">
+          <div class="logo-icon">
+            <i data-lucide="scan-line"></i>
+          </div>
+          <span class="brand-title">GradeVision<span class="gradient-text">.AI</span></span>
+        </div>
+
+        <!-- 3 HEADER BADGES: [NAME] | [SUBJECT] | [DEPT] -->
+        <div class="header-sketch-badges">
+          <div class="sketch-badge">
+            <span class="badge-label">NAME</span>
+            <strong id="headerTeacherName">Prof. Anitha M</strong>
+          </div>
+          <div class="sketch-badge">
+            <span class="badge-label">SUBJECT</span>
+            <strong id="headerTeacherSubject">Data Structures</strong>
+          </div>
+          <div class="sketch-badge">
+            <span class="badge-label">DEPT</span>
+            <strong id="headerTeacherDept">CSE Dept</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT ACTIONS & USER PROFILE -->
+      <div class="header-actions">
+        <div class="demo-badge" id="dbStatusBadge">
+          <span class="pulse-dot"></span> MongoDB Connected
+        </div>
+        <button class="btn btn-secondary" onclick="openAuthModal('signin')">
+          <i data-lucide="user-check"></i> Sign In / Switch Account
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN LAYOUT: SIDEBAR + CENTER CANVAS -->
+  <div class="app-layout">
+    
+    <!-- LEFT SIDEBAR NAVIGATOR (EXACT SKETCH: Script Evaluator | Faculty Matrix | Class Analysis) -->
+    <aside class="sidebar-nav">
+      <div class="sidebar-menu">
+        <button class="sidebar-btn active" id="side-tab-evaluator" onclick="switchSidebarTab('evaluator')">
+          <i data-lucide="file-check-2"></i>
+          <span>Script Evaluator</span>
+        </button>
+        <button class="sidebar-btn" id="side-tab-faculty" onclick="switchSidebarTab('faculty')">
+          <i data-lucide="layout-grid"></i>
+          <span>Faculty Matrix</span>
+        </button>
+        <button class="sidebar-btn" id="side-tab-analytics" onclick="switchSidebarTab('analytics')">
+          <i data-lucide="bar-chart-3"></i>
+          <span>Class Analysis</span>
+        </button>
+      </div>
+
+      <div class="sidebar-footer">
+        <span class="role-indicator"><i data-lucide="shield-check"></i> Active Role: <strong id="sidebarRoleLabel">Teacher</strong></span>
+      </div>
+    </aside>
+
+    <!-- CENTER MAIN CANVAS AREA -->
+    <main class="main-canvas">
+
+      <!-- VIEW 1: SCRIPT EVALUATOR & CLASSROOM DASHBOARD -->
+      <section id="view-evaluator" class="canvas-view active">
+        
+        <!-- SECTION TITLE & STATS -->
+        <div class="canvas-top-bar">
+          <div>
+            <h2 style="font-size:1.3rem; font-weight:800;">Classroom Evaluation Folders</h2>
+            <p style="font-size:0.83rem; color:var(--text-muted);">Manage student answer script submissions sorted section-wise.</p>
+          </div>
+          <button class="btn btn-primary" onclick="openCreateClassroomModal()">
+            <i data-lucide="plus-circle"></i> Create New Classroom
+          </button>
+        </div>
+
+        <!-- MAIN CENTER AREA: SHOWS PROMINENT 'CREATE +' CARD IF EMPTY -->
+        <div class="classrooms-grid-container">
+          
+          <!-- PROMINENT CENTER 'CREATE +' CARD (EXACT SKETCH DESIGN) -->
+          <div class="sketch-create-card" id="emptyCreateCard" onclick="openCreateClassroomModal()">
+            <div class="create-inner">
+              <div class="plus-icon-circle">
+                <i data-lucide="plus"></i>
+              </div>
+              <h3 class="sketch-create-text">Create +</h3>
+              <p>Click to setup a new Classroom Folder, Student Name List & Answer Script Uploads</p>
+            </div>
+          </div>
+
+          <!-- DYNAMICALLY CREATED CLASSROOM CARDS SORTED BY SECTION -->
+          <div id="classroomsListGrid" class="active-classrooms-grid" style="display:none;">
+            <!-- Classroom cards rendered here -->
+          </div>
+        </div>
+
+        <!-- ACTIVE EVALUATION WORKSPACE (DUAL PANE CANVAS WHEN A CLASSROOM IS OPEN) -->
+        <div id="activeEvaluationWorkspace" style="display:none; margin-top:24px;">
+          <!-- Top Control Banner -->
+          <div class="control-banner">
+            <div class="preset-selector-group">
+              <label><i data-lucide="folder-open"></i> Active Classroom:</label>
+              <strong id="activeClassNameDisplay" style="color:#fff;">CS201 Sec A (Data Structures)</strong>
+            </div>
+            <button class="btn btn-secondary" onclick="closeActiveClassroomView()">
+              <i data-lucide="arrow-left"></i> Back to All Classrooms
+            </button>
+          </div>
+
+          <!-- Dual Pane Layout -->
+          <div class="dual-pane-container">
+            <!-- Left Pane: Annotated Answer Sheet Image SVG Canvas -->
+            <div class="pane pane-canvas">
+              <div class="pane-header">
+                <div class="pane-title"><i data-lucide="eye"></i> Annotated Answer Sheet</div>
+                <div class="canvas-tools">
+                  <span class="tool-chip green"><span class="chip-dot"></span> Full</span>
+                  <span class="tool-chip yellow"><span class="chip-dot"></span> Partial</span>
+                  <span class="tool-chip red"><span class="chip-dot"></span> Missed</span>
+                </div>
+              </div>
+              <div class="canvas-viewport" id="canvasViewport">
+                <div class="canvas-wrapper" id="canvasWrapper">
+                  <img id="answerSheetImage" src="" alt="Answer Sheet Scan">
+                  <svg id="annotationOverlay" class="annotation-svg"></svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Pane: Step Rubric & Marks -->
+            <div class="pane pane-evaluation">
+              <div class="pane-header">
+                <div class="pane-title"><i data-lucide="list-checks"></i> Rubric & Step Evaluation</div>
+              </div>
+              <div class="questions-list" id="questionsContainer">
+                <!-- Question Breakdown Cards -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- VIEW 2: FACULTY MATRIX DASHBOARD -->
+      <section id="view-faculty" class="canvas-view">
+        <div class="faculty-header-bar">
+          <div>
+            <h2>Faculty Grade Matrix & Student Marks Register</h2>
+            <p>Consolidated student marks breakdown across questions, sections, and automated totals.</p>
+          </div>
+          <div class="faculty-actions">
+            <div class="search-box">
+              <i data-lucide="search"></i>
+              <input type="text" id="studentSearchInput" placeholder="Search student name or Reg No..." onkeyup="filterFacultyMatrix()">
+            </div>
+            <button class="btn btn-success" onclick="exportFacultyMatrixCSV()">
+              <i data-lucide="download"></i> Download Matrix CSV
+            </button>
+          </div>
+        </div>
+
+        <div class="matrix-card glass-panel">
+          <div class="table-responsive">
+            <table class="matrix-table" id="facultyMatrixTable">
+              <thead>
+                <tr>
+                  <th>Reg No</th>
+                  <th>Student Name</th>
+                  <th>Q1 (5)</th>
+                  <th>Q2 (5)</th>
+                  <th>Q3 (10)</th>
+                  <th>Q4 (10)</th>
+                  <th>Q5 (10)</th>
+                  <th>Q6 (10)</th>
+                  <th>Sec A</th>
+                  <th>Sec B</th>
+                  <th>Total (50)</th>
+                  <th>Grade</th>
+                </tr>
+              </thead>
+              <tbody id="matrixTableBody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: CLASS ANALYSIS -->
+      <section id="view-analytics" class="canvas-view">
+        <div class="analytics-header">
+          <h2>Class Performance Analytics & Weakness Heatmap</h2>
+          <p>AI Insights generated by analyzing handwriting patterns and concept gaps across sections.</p>
+        </div>
+
+        <div class="analytics-grid">
+          <div class="stat-box glass-panel">
+            <div class="stat-icon purple"><i data-lucide="users"></i></div>
+            <div class="stat-info">
+              <span class="stat-title">Evaluated Students</span>
+              <h3 class="stat-value" id="statTotalStudents">42 Students</h3>
+            </div>
+          </div>
+          <div class="stat-box glass-panel">
+            <div class="stat-icon green"><i data-lucide="award"></i></div>
+            <div class="stat-info">
+              <span class="stat-title">Class Average</span>
+              <h3 class="stat-value">38.4 / 50</h3>
+            </div>
+          </div>
+          <div class="stat-box glass-panel">
+            <div class="stat-icon yellow"><i data-lucide="alert-triangle"></i></div>
+            <div class="stat-info">
+              <span class="stat-title">Highest Error Topic</span>
+              <h3 class="stat-value">AVL Rotations (Q4)</h3>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-card glass-panel" style="margin-top:20px; padding:20px;">
+          <h3 style="margin-bottom:16px;"><i data-lucide="bar-chart-2"></i> Question-wise Class Performance Spectrum</h3>
+          <div class="bar-chart-container" id="questionPerformanceChart"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL 1: DUAL AUTHENTICATION (SIGN IN & REGISTRATION) -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal-card glass-panel" style="max-width: 500px; padding:28px;">
+      <div style="text-align:center; margin-bottom:20px;">
+        <h2 style="font-size:1.5rem; font-weight:800;" id="authModalTitle">Sign In to GradeVision</h2>
+        <p style="font-size:0.83rem; color:var(--text-muted);">Access your Teacher Dashboard or Student Transcript Portal</p>
+      </div>
+
+      <!-- ROLE TOGGLE -->
+      <div class="auth-role-tabs">
+        <button class="nav-btn active" id="authRoleTeacherBtn" onclick="switchAuthRole('teacher')">
+          <i data-lucide="graduation-cap"></i> Teacher
+        </button>
+        <button class="nav-btn" id="authRoleStudentBtn" onclick="switchAuthRole('student')">
+          <i data-lucide="user"></i> Student
+        </button>
+      </div>
+
+      <!-- FORM SWITCH: SIGN IN VS REGISTRATION -->
+      <div class="auth-mode-switch">
+        <button class="mode-link active" id="modeSigninBtn" onclick="toggleAuthMode('signin')">Sign In</button>
+        <button class="mode-link" id="modeRegisterBtn" onclick="toggleAuthMode('register')">New Registration</button>
+      </div>
+
+      <!-- REGISTRATION / LOGIN FORM -->
+      <form id="authForm" onsubmit="handleAuthSubmit(event)">
+        <!-- COMMON FIELDS -->
+        <div class="form-group">
+          <label>Email Address:</label>
+          <input type="email" id="authEmailInput" required placeholder="name@college.edu">
+        </div>
+        <div class="form-group">
+          <label>Password:</label>
+          <input type="password" id="authPasswordInput" required placeholder="••••••••••••">
+        </div>
+
+        <!-- NEW REGISTRATION SPECIFIC FIELDS -->
+        <div id="registerExtraFields" style="display:none; flex-direction:column; gap:12px;">
+          <div class="form-group">
+            <label>Full Name:</label>
+            <input type="text" id="regNameInput" placeholder="Prof. Anitha M or Rahul Sharma">
+          </div>
+          <div class="form-group">
+            <label>Department:</label>
+            <input type="text" id="regDeptInput" placeholder="CSE / ECE / Mechanical">
+          </div>
+
+          <!-- TEACHER ONLY FIELD -->
+          <div class="form-group" id="regTeacherSubjectGroup">
+            <label>Subject Taught:</label>
+            <input type="text" id="regSubjectInput" placeholder="Data Structures & Algorithms">
+          </div>
+
+          <!-- STUDENT ONLY FIELD -->
+          <div class="form-group" id="regStudentRegNoGroup" style="display:none;">
+            <label>Register Number (Reg No):</label>
+            <input type="text" id="regRegNoInput" placeholder="USN: 1ST23CS084">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:16px; padding:12px;">
+          <span id="authSubmitBtnText">Sign In</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: CREATE CLASSROOM & UPLOAD WORKFLOW -->
+  <div class="modal-overlay" id="createClassroomModal">
+    <div class="modal-card glass-panel" style="max-width: 680px; padding:28px;">
+      <div class="modal-header">
+        <div class="modal-title"><i data-lucide="folder-plus"></i> Create Classroom Folder & Answer Script Upload</div>
+        <button class="close-btn" onclick="closeCreateClassroomModal()"><i data-lucide="x"></i></button>
+      </div>
+
+      <div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
+        
+        <!-- STEP 1: CLASSROOM INFO & STUDENT NAME LIST -->
+        <div class="step-box">
+          <h4>Step 1: Classroom Information</h4>
+          <div style="display:grid; grid-template-columns: 2fr 1fr; gap:12px; margin-top:8px;">
+            <input type="text" id="newClassNameInput" placeholder="Classroom Name (e.g. CS201 Data Structures)" required>
+            <input type="text" id="newClassSectionInput" placeholder="Section (e.g. Sec A)" value="Sec A">
+          </div>
+          <div style="margin-top:10px;">
+            <label style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Student Name List (Comma Separated):</label>
+            <textarea id="newStudentListInput" rows="2" placeholder="Rahul Sharma, Ananya Roy, Vikram Malhotra, Snehil Verma"></textarea>
+            <button type="button" class="btn btn-secondary" style="margin-top:6px; padding:4px 10px; font-size:0.78rem;" onclick="generateStudentScriptFields()">
+              <i data-lucide="users"></i> Generate Student Script Upload Fields
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 2: GENERATED ANSWER SCRIPT FIELDS PER STUDENT -->
+        <div class="step-box" id="studentScriptUploadsContainer" style="display:none;">
+          <h4>Step 2: Student Answer Script Uploads</h4>
+          <div id="studentFieldsList" style="display:flex; flex-direction:column; gap:8px; max-height:180px; overflow-y:auto; margin-top:8px;">
+            <!-- Generated per student -->
+          </div>
+        </div>
+
+        <!-- STEP 3: QUESTION PAPER UPLOAD -->
+        <div class="step-box">
+          <h4>Step 3: Question Paper File</h4>
+          <input type="file" id="qpFileInput" accept="image/*,.pdf" style="margin-top:6px;">
+        </div>
+
+        <!-- STEP 4: ANSWER KEY (OPTIONAL) / AI GENERATOR -->
+        <div class="step-box">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h4>Step 4: Answer Key (Optional)</h4>
+            <button type="button" class="btn btn-accent" style="padding:4px 10px; font-size:0.75rem;" onclick="generateAIAnswerKeyFromQP()">
+              <i data-lucide="sparkles"></i> Auto-Generate AI Answer Key
+            </button>
+          </div>
+          <textarea id="answerKeyTextInput" rows="3" placeholder="Optional model answer key... (Or click Auto-Generate AI Answer Key above)" style="margin-top:6px;"></textarea>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeCreateClassroomModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveAndEvaluateClassroom()">
+          <i data-lucide="play-circle"></i> Save & Start AI Evaluation
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="js/sample_data.js"></script>
+  <script src="js/ocr_engine.js"></script>
+  <script src="js/annotator.js"></script>
+  <script src="js/dashboard_faculty.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
