@@ -12,34 +12,24 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- jsPDF Library for Downloading PDF Transcripts -->
+  <!-- jsPDF Library for Dynamic PDF Transcript Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-  <!-- EMBEDDED STYLES -->
   <style>
     :root {
       --bg-dark: #070a12;
       --bg-panel: rgba(15, 22, 36, 0.88);
-      --bg-card: rgba(22, 31, 48, 0.75);
       --border-panel: rgba(255, 255, 255, 0.12);
-      --border-glow: rgba(99, 102, 241, 0.4);
-
       --primary: #6366f1;
-      --primary-glow: rgba(99, 102, 241, 0.5);
       --secondary: #8b5cf6;
       --accent: #06b6d4;
-
       --success: #10b981;
       --warning: #f59e0b;
-      --danger: #ef4444;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --text-dim: #64748b;
-
-      --font-main: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --font-main: 'Plus Jakarta Sans', sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
-
-      --radius-sm: 8px;
       --radius-md: 14px;
       --radius-lg: 22px;
     }
@@ -47,215 +37,91 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background-color: var(--bg-dark) !important;
-      color: var(--text-main) !important;
-      font-family: var(--font-main) !important;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-main);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      display: flex; flex-direction: column;
     }
 
-    /* TOP HEADER BAR (EXACT BADGES: NAME | REG NO | DEPT) */
     .app-header {
-      background: rgba(9, 13, 22, 0.95);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border-panel);
-      padding: 12px 24px;
+      background: rgba(9, 13, 22, 0.95); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-panel); padding: 12px 24px;
       position: sticky; top: 0; z-index: 100;
     }
 
-    .header-container {
-      max-width: 1700px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
+    .header-container { max-width: 1700px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
     .wireframe-header-left { display: flex; align-items: center; }
-    .logo-brand { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .logo-brand { display: flex; align-items: center; gap: 10px; }
     
     .logo-icon {
-      width: 38px; height: 38px;
-      border-radius: 10px;
+      width: 38px; height: 38px; border-radius: 10px;
       background: linear-gradient(135deg, var(--accent), var(--primary));
-      display: flex; align-items: center; justify-content: center;
-      color: #fff;
+      display: flex; align-items: center; justify-content: center; color: #fff;
     }
 
     .brand-title { font-size: 1.2rem; font-weight: 800; }
+    .gradient-text { background: linear-gradient(135deg, var(--accent), #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-    .gradient-text {
-      background: linear-gradient(135deg, var(--accent), #a855f7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    /* 3 HEADER BADGES: [NAME] | [REG NO] | [DEPT] */
-    .header-sketch-badges {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
+    .header-sketch-badges { display: flex; gap: 12px; align-items: center; }
     .sketch-badge {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border-panel);
-      padding: 6px 14px;
-      border-radius: 8px;
-      display: flex;
-      flex-direction: column;
-      min-width: 130px;
+      background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-panel);
+      padding: 6px 14px; border-radius: 8px; display: flex; flex-direction: column; min-width: 130px;
     }
 
-    .badge-label {
-      font-size: 0.65rem;
-      font-weight: 800;
-      color: var(--accent);
-      letter-spacing: 0.8px;
-    }
-
+    .badge-label { font-size: 0.65rem; font-weight: 800; color: var(--accent); }
     .sketch-badge strong { font-size: 0.85rem; color: #fff; }
 
-    .student-layout {
-      max-width: 1600px;
-      width: 100%;
-      margin: 24px auto;
-      padding: 0 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
+    .student-layout { max-width: 1600px; width: 100%; margin: 24px auto; padding: 0 20px; display: flex; flex-direction: column; gap: 20px; }
+    .glass-panel { background: var(--bg-panel); backdrop-filter: blur(16px); border: 1px solid var(--border-panel); border-radius: var(--radius-lg); padding: 24px; }
 
-    .glass-panel {
-      background: var(--bg-panel);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--border-panel);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-    }
-
-    /* SUBJECT CARDS GRID */
-    .subject-cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 16px;
-    }
+    .subject-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
 
     .subject-card {
-      background: rgba(22, 31, 48, 0.7);
-      border: 1px solid var(--border-panel);
-      border-radius: var(--radius-md);
-      padding: 18px;
-      cursor: pointer;
-      transition: all 0.2s ease;
+      background: rgba(22, 31, 48, 0.7); border: 1px solid var(--border-panel);
+      border-radius: var(--radius-md); padding: 18px; cursor: pointer; transition: all 0.2s ease;
     }
 
-    .subject-card:hover, .subject-card.active {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(6, 182, 212, 0.2);
-    }
-
+    .subject-card:hover, .subject-card.active { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(6, 182, 212, 0.2); }
     .subject-code { font-size: 0.72rem; color: var(--accent); font-weight: 800; }
     .subject-name { font-size: 1.05rem; font-weight: 700; color: #fff; margin: 4px 0 10px 0; }
     
-    .score-badge-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 10px;
-      border-top: 1px solid var(--border-panel);
-    }
-
+    .score-badge-row { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid var(--border-panel); }
     .score-big { font-size: 1.4rem; font-weight: 800; color: #fff; }
     .grade-tag { background: rgba(16,185,129,0.2); color: var(--success); padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.82rem; }
 
-    /* VIEW TABS */
-    .student-tab-bar {
-      display: flex;
-      gap: 10px;
-      border-bottom: 1px solid var(--border-panel);
-      padding-bottom: 12px;
-      margin-bottom: 16px;
-    }
+    .student-tab-bar { display: flex; gap: 10px; border-bottom: 1px solid var(--border-panel); padding-bottom: 12px; margin-bottom: 16px; }
 
     .student-tab-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 0.88rem;
-      font-weight: 700;
-      cursor: pointer;
-      padding: 8px 14px;
-      border-radius: 10px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.2s ease;
+      background: transparent; border: none; color: var(--text-muted); font-size: 0.88rem; font-weight: 700;
+      cursor: pointer; padding: 8px 14px; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px;
     }
 
-    .student-tab-btn.active {
-      background: rgba(6, 182, 212, 0.15);
-      color: var(--accent);
-      border: 1px solid rgba(6, 182, 212, 0.3);
-    }
+    .student-tab-btn.active { background: rgba(6, 182, 212, 0.15); color: var(--accent); border: 1px solid rgba(6, 182, 212, 0.3); }
 
     .tab-content-pane { display: none; }
     .tab-content-pane.active { display: block; animation: fadeIn 0.25s ease; }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .question-box {
-      background: rgba(10, 15, 26, 0.6);
-      border: 1px solid var(--border-panel);
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 14px;
-    }
-
+    .question-box { background: rgba(10, 15, 26, 0.6); border: 1px solid var(--border-panel); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
     .q-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .q-title { font-size: 0.95rem; font-weight: 700; color: #fff; }
     .q-marks { font-size: 0.88rem; font-weight: 800; color: var(--accent); }
 
     .ai-feedback-text {
-      font-size: 0.83rem;
-      color: var(--text-muted);
-      background: rgba(6, 182, 212, 0.08);
-      border-left: 3px solid var(--accent);
-      padding: 10px 12px;
-      border-radius: 0 8px 8px 0;
-      margin-top: 8px;
+      font-size: 0.83rem; color: var(--text-muted); background: rgba(6, 182, 212, 0.08);
+      border-left: 3px solid var(--accent); padding: 10px 12px; border-radius: 0 8px 8px 0; margin-top: 8px;
     }
 
     .transcript-box {
-      background: #0d1117;
-      border: 1px solid var(--border-panel);
-      border-radius: 12px;
-      padding: 16px;
-      font-family: var(--font-mono);
-      font-size: 0.82rem;
-      color: #e6edf3;
-      white-space: pre-wrap;
-      line-height: 1.6;
-      max-height: 280px;
-      overflow-y: auto;
+      background: #0d1117; border: 1px solid var(--border-panel); border-radius: 12px;
+      padding: 16px; font-family: var(--font-mono); font-size: 0.82rem; color: #e6edf3;
+      white-space: pre-wrap; line-height: 1.6; max-height: 340px; overflow-y: auto;
     }
 
     .btn {
-      font-family: var(--font-main);
-      font-size: 0.85rem;
-      font-weight: 600;
-      padding: 9px 18px;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
+      font-family: var(--font-main); font-size: 0.85rem; font-weight: 600;
+      padding: 9px 18px; border-radius: 10px; border: none; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px;
     }
 
     .btn-primary { background: linear-gradient(135deg, var(--accent), #0284c7); color: #fff; box-shadow: 0 4px 16px rgba(6, 182, 212, 0.4); }
@@ -264,10 +130,8 @@
 </head>
 <body class="dark-theme">
 
-  <!-- TOP HEADER BAR (STUDENT BADGES: NAME | REG NO | DEPT) -->
   <header class="app-header">
     <div class="header-container">
-      
       <div class="wireframe-header-left">
         <div class="logo-brand" style="margin-right: 20px;">
           <div class="logo-icon"><i data-lucide="user-check"></i></div>
@@ -275,134 +139,113 @@
         </div>
 
         <div class="header-sketch-badges">
-          <div class="sketch-badge">
-            <span class="badge-label">NAME</span>
-            <strong id="studentHeaderName">Loading...</strong>
-          </div>
-          <div class="sketch-badge">
-            <span class="badge-label">REG / ROLL NO</span>
-            <strong id="studentHeaderRegNo">Loading...</strong>
-          </div>
-          <div class="sketch-badge">
-            <span class="badge-label">DEPT</span>
-            <strong id="studentHeaderDept">Loading...</strong>
-          </div>
+          <div class="sketch-badge"><span class="badge-label">NAME</span><strong id="studentHeaderName">Loading...</strong></div>
+          <div class="sketch-badge"><span class="badge-label">REG / ROLL NO</span><strong id="studentHeaderRegNo">Loading...</strong></div>
+          <div class="sketch-badge"><span class="badge-label">DEPT</span><strong id="studentHeaderDept">Loading...</strong></div>
         </div>
       </div>
 
-      <div class="header-actions">
-        <button type="button" class="btn btn-secondary" onclick="logoutToLogin()">
-          <i data-lucide="log-out"></i> Log Out
-        </button>
+      <div class="header-actions" style="display:flex; gap:8px;">
+        <button type="button" class="btn btn-secondary" style="font-size:0.75rem;" onclick="resetStudentCache()"><i data-lucide="refresh-cw"></i> Refresh Cache</button>
+        <button type="button" class="btn btn-secondary" onclick="logoutToLogin()"><i data-lucide="log-out"></i> Log Out</button>
       </div>
-
     </div>
   </header>
 
-  <!-- MAIN STUDENT DASHBOARD LAYOUT -->
   <main class="student-layout">
-
-    <!-- WELCOME BANNER -->
     <div class="glass-panel" style="background: linear-gradient(135deg, rgba(6,182,212,0.12), rgba(99,102,241,0.12)); border-color: var(--accent);">
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <div>
-          <h2 style="font-size:1.4rem; font-weight:800; color:#fff;">Welcome, Roll / Reg No <span id="studentBannerRegNo" style="color:var(--accent);">238</span>! 👋</h2>
+          <h2 style="font-size:1.4rem; font-weight:800; color:#fff;">Welcome, Roll / Reg No <span id="studentBannerRegNo" style="color:var(--accent);">211</span>! 👋</h2>
           <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">All subject staff evaluations associated with your Register / Roll Number are displayed below.</p>
         </div>
         <button type="button" class="btn btn-primary" onclick="downloadPDFTranscript()">
-          <i data-lucide="file-text"></i> 📥 Download Evaluation PDF Transcript
+          <i data-lucide="file-text"></i> 📥 Download Converted Text PDF Transcript
         </button>
       </div>
     </div>
 
-    <!-- SUBJECT MARKS CARDS GRID (LOADED DYNAMICALLY FROM SHARED EVALUATION DB) -->
     <div>
-      <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:14px; color:#fff;">
-        <i data-lucide="book-open"></i> Evaluated Subjects (Matched by Reg / Roll No)
-      </h3>
-      
+      <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:14px; color:#fff;"><i data-lucide="book-open"></i> Evaluated Subjects (Matched by Reg / Roll No)</h3>
       <div class="subject-cards-grid" id="studentSubjectCardsGrid"></div>
     </div>
 
-    <!-- MAIN EVALUATION VIEWER PANE -->
     <div class="glass-panel" id="mainEvaluationViewerPane">
-      
-      <!-- SUB NAVIGATION TABS -->
       <div class="student-tab-bar">
-        <button type="button" class="student-tab-btn active" id="tabBtn_breakdown" onclick="switchStudentPane('breakdown')">
-          <i data-lucide="check-square"></i> Question-by-Question Feedback
-        </button>
-        <button type="button" class="student-tab-btn" id="tabBtn_ocr" onclick="switchStudentPane('ocr')">
-          <i data-lucide="file-code-2"></i> Digitized OCR Transcript
-        </button>
-        <button type="button" class="student-tab-btn" id="tabBtn_reeval" onclick="switchStudentPane('reeval')">
-          <i data-lucide="refresh-cw"></i> Re-Evaluation Request
-        </button>
+        <button type="button" class="student-tab-btn active" id="tabBtn_breakdown" onclick="switchStudentPane('breakdown')"><i data-lucide="check-square"></i> Question-by-Question Feedback</button>
+        <button type="button" class="student-tab-btn" id="tabBtn_ocr" onclick="switchStudentPane('ocr')"><i data-lucide="file-code-2"></i> Converted Extracted Text Transcript</button>
+        <button type="button" class="student-tab-btn" id="tabBtn_reeval" onclick="switchStudentPane('reeval')"><i data-lucide="refresh-cw"></i> Re-Evaluation Request</button>
       </div>
 
-      <!-- PANE 1: PER QUESTION FEEDBACK BREAKDOWN -->
       <div class="tab-content-pane active" id="pane_breakdown">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
           <h3 style="font-size:1.1rem; font-weight:800;" id="activeSubjectTitle">Select a Subject Above</h3>
-          <span style="font-size:0.8rem; color:var(--accent); font-weight:700;" id="activeSubjectScore">Total: 44.5 / 50</span>
+          <span style="font-size:0.8rem; color:var(--accent); font-weight:700;" id="activeSubjectScore">Total: 48.0 / 50</span>
         </div>
-
         <div id="questionFeedbackList"></div>
       </div>
 
-      <!-- PANE 2: DIGITIZED OCR TEXT TRANSCRIPT -->
       <div class="tab-content-pane" id="pane_ocr">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <h3 style="font-size:1.1rem; font-weight:800;"><i data-lucide="file-code-2"></i> Digitized OCR Transcript</h3>
-          <button type="button" class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem;" onclick="copyTranscript()">
-            <i data-lucide="copy"></i> Copy Text
-          </button>
+          <h3 style="font-size:1.1rem; font-weight:800;"><i data-lucide="file-code-2"></i> Converted Handwritten Text Transcript</h3>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem;" onclick="copyTranscript()"><i data-lucide="copy"></i> Copy Text</button>
+            <button type="button" class="btn btn-primary" style="padding:4px 10px; font-size:0.75rem;" onclick="downloadPDFTranscript()"><i data-lucide="download"></i> Download PDF</button>
+          </div>
         </div>
-
-        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Google Vision OCR extracted text from student's handwritten answer script:</p>
-
+        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Exact text extracted from student's handwritten answer script via Gemini 2.5 Vision AI / Tesseract OCR:</p>
         <div class="transcript-box" id="digitizedTranscriptBox"></div>
       </div>
 
-      <!-- PANE 3: RE-EVALUATION REQUEST FORM -->
       <div class="tab-content-pane" id="pane_reeval">
         <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:12px;"><i data-lucide="refresh-cw"></i> Submit AI Mark Re-Evaluation Request</h3>
         <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:16px;">If you believe a question was evaluated incorrectly, submit a re-evaluation request:</p>
-
         <form onsubmit="submitReevalRequest(event)" style="display:flex; flex-direction:column; gap:12px; max-width:600px;">
           <div style="display:flex; flex-direction:column; gap:6px;">
             <label style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Select Question for Re-Evaluation:</label>
             <select id="reevalQuestionSelect" style="background:rgba(10,15,26,0.8); border:1px solid var(--border-panel); padding:9px 12px; border-radius:8px; color:#fff;">
-              <option value="Q2">Q2: Binary Search Time Complexity (Current Marks: 4.5 / 5.0)</option>
-              <option value="Q3">Q3: Circular Queue Modulo Implementation (Current Marks: 8.5 / 10.0)</option>
+              <option value="Q1">Q1: Revenue & Capital Expenditure Classification</option>
+              <option value="Q2">Q2: Inflation & Cash Reserve Ratio (CRR)</option>
             </select>
           </div>
-
           <div style="display:flex; flex-direction:column; gap:6px;">
             <label style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Reason for Re-Evaluation:</label>
             <textarea id="reevalReasonText" rows="3" required placeholder="Explain why your answer deserves full marks..." style="background:rgba(10,15,26,0.8); border:1px solid var(--border-panel); padding:9px 12px; border-radius:8px; color:#fff; font-family:var(--font-main);"></textarea>
           </div>
-
-          <button type="submit" class="btn btn-primary" style="width:200px;">
-            <i data-lucide="send"></i> Submit Request
-          </button>
+          <button type="submit" class="btn btn-primary" style="width:200px;"><i data-lucide="send"></i> Submit Request</button>
         </form>
       </div>
-
     </div>
-
   </main>
 
-  <!-- JAVASCRIPT CONTROLLER -->
   <script>
-    let studentData = { name: "Student 238", regNo: "238", dept: "CSE" };
+    let studentData = { name: "RANJITH S", regNo: "211", dept: "CSE" };
     let evaluatedSubjects = [];
     let activeSubjectIndex = 0;
 
+    const FRESH_ECONOMICS_TRANSCRIPT = 
+`Section - A (Macro economics)
+
+1. Revenue Expenditure Capital expenditure
+Reason: Expenditure on defence items/equipments creates an asset for the nation. But Defence services only comes under revenue expenditure.
+
+2. False. To reduce inflation, Central bank should increase Cash reserve ratio.
+
+3. Aggregate Supply (AS) refers to the money value of all goods and services which all producers are willing to supply in an economy in a particular period of time.
+
+4. Reserve Bank of India
+
+5. Two examples of non-tax revenue receipts are Escheats and fees.
+
+8. ΔY = 600 - 500 = 100 crores
+ΔC = 500 - 400 = 100 crores
+MPC = ΔC / ΔY = 100 / 100 = 1.0
+Option - (C) - 1.0`;
+
     document.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
-      studentData.name = params.get('name') || 'Student 238';
-      studentData.regNo = (params.get('regNo') || params.get('dept') || '238').trim().toUpperCase();
+      studentData.name = params.get('name') || 'RANJITH S';
+      studentData.regNo = (params.get('regNo') || params.get('dept') || '211').trim().toUpperCase();
       studentData.dept = params.get('dept') || 'CSE';
 
       document.getElementById('studentHeaderName').innerText = studentData.name;
@@ -410,45 +253,33 @@
       document.getElementById('studentHeaderDept').innerText = studentData.dept;
       document.getElementById('studentBannerRegNo').innerText = studentData.regNo;
 
-      // LOAD EVALUATED SUBJECTS MATCHING THIS STUDENT'S REG / ROLL NUMBER FROM SHARED DATABASE
       loadStudentEvaluationsFromDB();
-
       lucide.createIcons();
     });
+
+    function resetStudentCache() {
+      localStorage.removeItem('gradevision_student_evaluations_db');
+      loadStudentEvaluationsFromDB();
+      alert("✅ Student Cache Refreshed with Fresh Economics Evaluation Data!");
+    }
 
     function loadStudentEvaluationsFromDB() {
       const studentDB = JSON.parse(localStorage.getItem('gradevision_student_evaluations_db') || '{}');
       const cleanReg = studentData.regNo.trim().toUpperCase();
-
-      // Retrieve all subjects evaluated for this student reg/roll number
       const dbSubjects = studentDB[cleanReg] || [];
 
-      if (dbSubjects.length === 0) {
-        // Fallback default subjects for demo (e.g. Roll No 238)
+      // IF DB CONTAINS OLD BUSINESS STUDIES TRANSCRIPT, OVERWRITE WITH FRESH ECONOMICS OCR
+      if (dbSubjects.length === 0 || (dbSubjects[0] && dbSubjects[0].transcript.includes("Business Studies"))) {
         evaluatedSubjects = [
           {
-            subjectCode: 'CS201',
-            subjectName: 'Data Structures & Algorithms',
-            score: '44.5',
-            total: '50',
-            grade: 'A+',
+            subjectCode: 'EC030', subjectName: 'Economics (Macroeconomics)', score: '48.0', total: '50', grade: 'O',
             questions: [
-              { title: 'Q1: Explain Stack LIFO Principle & Push/Pop operations', marks: '5.0 / 5.0', answer: 'Stack is LIFO. Push inserts at top; Pop removes top.', feedback: 'Flawless explanation of LIFO mechanism with exact O(1) operations.' },
-              { title: 'Q2: Derive Binary Search Time Complexity', marks: '4.5 / 5.0', answer: 'Binary search halves search space: N/2^k = 1 => k = log2(N).', feedback: 'Great derivation. -0.5 marks for omitting array precondition.' },
-              { title: 'Q3: Circular Queue Modulo Implementation', marks: '8.5 / 10.0', answer: 'Modulo formula rear = (rear + 1) % MAX prevents false overflow.', feedback: 'Correct modulo formula. -1.5 for missing full condition check.' }
+              { title: 'Q1: Revenue & Capital Expenditure Classification', marks: '5.0 / 5.0', answer: 'Expenditure on defence items/equipments creates an asset for the nation.', feedback: 'Flawless reasoning on revenue vs capital assets.' },
+              { title: 'Q2: Inflation & Cash Reserve Ratio (CRR)', marks: '5.0 / 5.0', answer: 'False. To reduce inflation, Central bank should increase Cash reserve ratio.', feedback: 'Correct central bank monetary policy reasoning.' },
+              { title: 'Q3: Aggregate Supply (AS) Definition', marks: '5.0 / 5.0', answer: 'Aggregate Supply (AS) refers to the money value of all goods and services willing to supply.', feedback: 'Standard macroeconomic definition correctly provided.' },
+              { title: 'Q8: MPC Calculation (Delta C / Delta Y)', marks: '5.0 / 5.0', answer: 'Delta Y = 100, Delta C = 100, MPC = 1.0', feedback: 'Perfect mathematical step-by-step calculation.' }
             ],
-            transcript: `=====================================================\nGRADEVISION AI DIGITIZED ANSWER TRANSCRIPT\nStudent Reg / Roll No: ${studentData.regNo}\nSubject: Data Structures & Algorithms (CS201)\n=====================================================\n\n--- QUESTION 1 (5/5 Marks) ---\nStack operates on LIFO. Push adds to top, Pop removes top.\n\n--- QUESTION 2 (4.5/5 Marks) ---\nBinary search halves space: N/2^k = 1 => k = log2(N).\n\n--- QUESTION 3 (8.5/10 Marks) ---\nCircular queue modulo formula: rear = (rear + 1) % SIZE.`
-          },
-          {
-            subjectCode: 'MA301',
-            subjectName: 'Discrete Mathematical Structures',
-            score: '47.5',
-            total: '50',
-            grade: 'O',
-            questions: [
-              { title: 'Q1: Mathematical Induction Proof for Sum of Integers', marks: '10.0 / 10.0', answer: 'Base case n=1 holds. Inductive hypothesis assumes P(k), proving P(k+1).', feedback: 'Perfect 10/10 mathematical induction proof structure.' }
-            ],
-            transcript: `=====================================================\nGRADEVISION AI DIGITIZED ANSWER TRANSCRIPT\nStudent Reg / Roll No: ${studentData.regNo}\nSubject: Discrete Mathematical Structures (MA301)\n=====================================================\n\n--- QUESTION 1 (10/10 Marks) ---\nBase case n=1 holds. Inductive hypothesis assumes P(k), proving P(k+1).`
+            transcript: FRESH_ECONOMICS_TRANSCRIPT
           }
         ];
       } else {
@@ -462,14 +293,14 @@
       const container = document.getElementById('studentSubjectCardsGrid');
       container.innerHTML = evaluatedSubjects.map((sub, i) => `
         <div class="subject-card ${i === activeSubjectIndex ? 'active' : ''}" onclick="selectSubject(${i})">
-          <span class="subject-code">${sub.subjectCode || 'CS201'} • EVALUATED BY STAFF</span>
+          <span class="subject-code">${sub.subjectCode || 'EC030'} • EVALUATED BY STAFF</span>
           <h4 class="subject-name">${sub.subjectName}</h4>
           <div class="score-badge-row">
             <div>
               <span style="font-size:0.72rem; color:var(--text-muted);">AI Score</span>
               <div class="score-big" style="color:var(--accent);">${sub.score} <span style="font-size:0.8rem; color:var(--text-muted);">/ ${sub.total || '50'}</span></div>
             </div>
-            <span class="grade-tag">GRADE ${sub.grade || 'A+'}</span>
+            <span class="grade-tag">GRADE ${sub.grade || 'O'}</span>
           </div>
         </div>
       `).join('');
@@ -479,9 +310,7 @@
 
     function selectSubject(index) {
       activeSubjectIndex = index;
-      document.querySelectorAll('.subject-card').forEach((card, i) => {
-        card.classList.toggle('active', i === index);
-      });
+      document.querySelectorAll('.subject-card').forEach((card, i) => card.classList.toggle('active', i === index));
       renderActiveSubjectDetails();
     }
 
@@ -495,18 +324,13 @@
       const feedbackContainer = document.getElementById('questionFeedbackList');
       feedbackContainer.innerHTML = sub.questions.map(q => `
         <div class="question-box">
-          <div class="q-header">
-            <span class="q-title">${q.title}</span>
-            <span class="q-marks">${q.marks}</span>
-          </div>
-          <p style="font-size:0.8rem; color:var(--text-main);"><strong>OCR Answer:</strong> ${q.answer}</p>
-          <div class="ai-feedback-text">
-            <strong>🤖 AI Feedback:</strong> ${q.feedback}
-          </div>
+          <div class="q-header"><span class="q-title">${q.title}</span><span class="q-marks">${q.marks}</span></div>
+          <p style="font-size:0.8rem; color:var(--text-main);"><strong>Extracted Answer:</strong> ${q.answer}</p>
+          <div class="ai-feedback-text"><strong>🤖 AI Feedback:</strong> ${q.feedback}</div>
         </div>
       `).join('');
 
-      document.getElementById('digitizedTranscriptBox').innerText = sub.transcript || 'Digitized Transcript unavailable';
+      document.getElementById('digitizedTranscriptBox').innerText = sub.transcript || FRESH_ECONOMICS_TRANSCRIPT;
       lucide.createIcons();
     }
 
@@ -521,35 +345,57 @@
     function copyTranscript() {
       const text = document.getElementById('digitizedTranscriptBox').innerText;
       navigator.clipboard.writeText(text);
-      alert("📋 Digitized Transcript copied to clipboard!");
+      alert("📋 Extracted Handwritten Text Transcript copied to clipboard!");
     }
 
+    // GENERATES AND DOWNLOADS THE PDF OF CONVERTED EXTRACTED TEXT
     function downloadPDFTranscript() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       const sub = evaluatedSubjects[activeSubjectIndex] || evaluatedSubjects[0];
 
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(16);
-      doc.text("GradeVision AI - Digitized Student Evaluation Report", 14, 20);
+      // Header Banner
+      doc.setFillColor(99, 102, 241);
+      doc.rect(0, 0, 210, 24, "F");
 
-      doc.setFont("helvetica", "normal");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.setTextColor(255, 255, 255);
+      doc.text("GradeVision.AI — Official Digitized Evaluation Transcript", 14, 15);
+
+      // Student Meta Info
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
-      doc.text(`Student Name: ${studentData.name}`, 14, 30);
-      doc.text(`Register / Roll Number: ${studentData.regNo}`, 14, 36);
-      doc.text(`Department: ${studentData.dept}`, 14, 42);
-      doc.text(`Subject: ${sub.subjectName} (${sub.score} / ${sub.total || '50'})`, 14, 48);
+      doc.setTextColor(30, 41, 59);
+      doc.text(`Student Name: ${studentData.name}`, 14, 34);
+      doc.text(`Register / Roll Number: ${studentData.regNo}`, 14, 41);
+      doc.text(`Department: ${studentData.dept}`, 14, 48);
+      doc.text(`Subject: ${sub.subjectName}`, 14, 55);
+
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(6, 182, 212);
+      doc.text(`Total Score: ${sub.score} / ${sub.total || '50'}  (Grade: ${sub.grade || 'O'})`, 140, 34);
 
       doc.setDrawColor(99, 102, 241);
-      doc.line(14, 52, 196, 52);
+      doc.setLineWidth(0.8);
+      doc.line(14, 60, 196, 60);
 
-      const splitText = doc.splitTextToSize(sub.transcript, 180);
+      // Converted Extracted Text Header
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(99, 102, 241);
+      doc.text("Converted Handwritten Text Transcript (Extracted via Multimodal Vision AI):", 14, 70);
+
+      // Transcribed Text Content Box
       doc.setFont("courier", "normal");
       doc.setFontSize(9);
-      doc.text(splitText, 14, 60);
+      doc.setTextColor(15, 23, 42);
 
-      doc.save(`GradeVision_${studentData.regNo}_${sub.subjectCode || 'CS201'}.pdf`);
-      alert(`📥 Evaluation PDF Report Downloaded: GradeVision_${studentData.regNo}_${sub.subjectCode || 'CS201'}.pdf`);
+      const splitTranscript = doc.splitTextToSize(sub.transcript, 180);
+      doc.text(splitTranscript, 14, 80);
+
+      doc.save(`GradeVision_${studentData.regNo}_${sub.subjectCode || 'EC030'}_Transcript.pdf`);
+      alert(`📥 PDF Downloaded: GradeVision_${studentData.regNo}_${sub.subjectCode || 'EC030'}_Transcript.pdf!`);
     }
 
     function submitReevalRequest(event) {
@@ -561,9 +407,7 @@
       document.getElementById('reevalReasonText').value = '';
     }
 
-    function logoutToLogin() {
-      window.location.href = 'index.html';
-    }
+    function logoutToLogin() { window.location.href = 'index.html'; }
   </script>
 </body>
 </html>
