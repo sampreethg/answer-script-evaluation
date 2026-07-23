@@ -27,74 +27,13 @@ By combining **Multimodal Computer Vision**, **Handwriting OCR (Optical Characte
 * **Print-Ready PDF Receipts:** Custom `@media print` CSS engine for generating paper/PDF evaluation reports.
 * ---
 ## 🛠️ Technology Stack & Architecture
-|
- Layer 
-|
- Technology 
-|
- Purpose 
-|
-|
-:---
-|
-:---
-|
-:---
-|
-|
-**
-Frontend UI
-**
-|
- HTML5, Vanilla CSS3, JavaScript (ES6+) 
-|
- Single Page Application (SPA) with custom glassmorphism design system & SVG canvas rendering. 
-|
-|
-**
-Backend REST API
-**
-|
- Node.js, Express.js (
-`server.js`
-) 
-|
- Express HTTP REST server handling authentication, user sessions, and static asset delivery. 
-|
-|
-**
-Database Engine
-**
-|
- SQLite3 (
-`gradevision.db`
-) 
-|
- Local relational database for persistent user storing with 
-`email UNIQUE`
- constraints. 
-|
-|
-**
-Fallback Storage
-**
-|
-`localStorage`
- / IndexedDB Sync 
-|
- Client-side sync engine ensuring zero-downtime offline demonstrations. 
-|
-|
-**
-AI / Machine Learning
-**
-|
-Python 3.x (
-`ai_evaluator_model.py`
-) 
-|
- Multimodal Vision AI pipeline for handwriting OCR, bounding box calculation, and semantic scoring. 
-|
+| Layer | Technology | Purpose |
+| --- | --- | --- |
+| **Frontend UI** | HTML5, Vanilla JavaScript (ES6+) | Single Page Application (SPA) with custom glassmorphism design system & SVG canvas rendering |
+| **Backend REST API** | Node.js, Express.js (`server.js`) | Express HTTP REST server handling authentication, user sessions, and static asset delivery |
+| **Database Engine** | SQLite3 (`gradevision.db`) | Local relational database for persistent user storage with `email` UNIQUE constraints |
+| **Fallback Storage** | `localStorage` / IndexedDB Sync | Client-side sync engine ensuring zero-downtime offline demonstrations |
+| **AI / Machine Learning** | Python 3.x (`ai_evaluator_model.py`) | Multimodal Vision AI pipeline for handwriting OCR, bounding box calculation, and semantic scoring |
 ---
 ## 🏗️ System Architecture & Execution Flow
 ```
