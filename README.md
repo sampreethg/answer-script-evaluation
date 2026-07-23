@@ -96,41 +96,9 @@ node server.js
 Open `http://localhost:5000` or launch [index.html](file:///C:/Users/SASI/.gemini/antigravity/scratch/gradevision-ai/index.html) directly in your browser.
 ---
 ## 🔑 Default Seed Demo Credentials
-|
- Role 
-|
- Email ID 
-|
- Default Password 
-|
- Notes 
-|
-|
-:---
-|
-:---
-|
-:---
-|
-:---
-|
-|
-**
-Faculty / Teacher
-**
-|
-`prof.anitha@siet.edu`
-|
-`password123`
-|
- Data Structures & Algorithms Portal 
-|
-|
-**
-{
-    "message": "User registered in SQLite database successfully",
-    "userId": 1
-  }
+| Role | Email ID | Default Password | Notes |
+| --- | --- | --- | --- |
+| **Faculty / Teacher** | `prof.anitha@siet.edu` | `password123` | Data Structures & Algorithms Portal |
   ```
 ### 2. User Sign In
 `POST /api/sqlite/login`
